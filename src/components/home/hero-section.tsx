@@ -40,7 +40,7 @@ export function HeroSection() {
             <Button
               asChild
               size="lg"
-              className="bg-emerald-600 text-white hover:bg-emerald-700"
+              className="bg-emerald-600 text-white transition-colors hover:bg-emerald-700"
             >
               <Link href="/upcoming-events">
                 Explore Events
