@@ -1,6 +1,6 @@
+import { FeaturesSection } from "@/components/home/features-section";
 import { HeroSection } from "@/components/home/hero-section";
 import { Navbar } from "@/components/layout/navbar";
-import { ThemeToggle } from "@/components/shared/theme-toggle";
 
 export default function Home() {
   return (
@@ -8,6 +8,7 @@ export default function Home() {
       <Navbar />
       <main>
         <HeroSection />
+        <FeaturesSection />
       </main>
     </>
   );
