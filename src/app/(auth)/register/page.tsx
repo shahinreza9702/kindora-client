@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -11,7 +11,14 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 export default function RegisterPage() {
+  const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!isPending && session) {
+      router.replace("/");
+    }
+  }, [session, isPending, router]);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -87,6 +94,16 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
+  if (isPending || session) {
+    return (
+      <main className="flex min-h-screen items-center justify-center">
+        <p className="text-sm text-muted-foreground">
+          {session ? "Redirecting..." : "Checking session..."}
+        </p>
+      </main>
+    );
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-12">
