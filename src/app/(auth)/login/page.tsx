@@ -1,10 +1,9 @@
-
 "use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,21 +12,22 @@ export default function LoginPage() {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
   useEffect(() => {
     if (!isPending && session) {
       router.replace("/");
     }
   }, [session, isPending, router]);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (loading) return;
+    if (loading || googleLoading) return;
 
     const normalizedEmail = email.trim().toLowerCase();
 
@@ -60,15 +60,37 @@ export default function LoginPage() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    if (loading || googleLoading) return;
+
+    setGoogleLoading(true);
+
+    try {
+      const { error } = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "http://localhost:3001/",
+        errorCallbackURL: "http://localhost:3001/login",
+      });
+
+      if (error) {
+        toast.error(error.message || "Google login failed.");
+        setGoogleLoading(false);
+      }
+    } catch {
+      toast.error("Unable to connect with Google. Please try again.");
+      setGoogleLoading(false);
+    }
+  };
+
   if (isPending || session) {
-  return (
-    <main className="flex min-h-screen items-center justify-center">
-      <p className="text-sm text-muted-foreground">
-        {session ? "Redirecting..." : "Checking session..."}
-      </p>
-    </main>
-  );
-}
+    return (
+      <main className="flex min-h-screen items-center justify-center">
+        <p className="text-sm text-muted-foreground">
+          {session ? "Redirecting..." : "Checking session..."}
+        </p>
+      </main>
+    );
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-12">
@@ -81,6 +103,34 @@ export default function LoginPage() {
           <p className="mt-2 text-sm text-muted-foreground">
             Login to continue making a difference with Kindora.
           </p>
+        </div>
+
+        {/* Google Login */}
+        <Button
+          type="button"
+          variant="outline"
+          className="mb-6 w-full"
+          disabled={loading || googleLoading}
+          onClick={handleGoogleLogin}
+        >
+          {googleLoading ? (
+            <Loader2 className="mr-2 size-4 animate-spin" />
+          ) : (
+            <span className="mr-2 font-bold text-base">G</span>
+          )}
+          {googleLoading ? "Connecting to Google..." : "Continue with Google"}
+        </Button>
+
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-card px-3 text-muted-foreground">
+              Or continue with email
+            </span>
+          </div>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
@@ -98,7 +148,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              disabled={loading}
+              disabled={loading || googleLoading}
               className="h-11 w-full rounded-lg border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-primary disabled:opacity-60"
             />
           </div>
@@ -118,7 +168,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                disabled={loading}
+                disabled={loading || googleLoading}
                 className="h-11 w-full rounded-lg border bg-background px-3 pr-11 text-sm outline-none transition focus:ring-2 focus:ring-primary disabled:opacity-60"
               />
 
@@ -139,7 +189,11 @@ export default function LoginPage() {
           </div>
 
           {/* Submit */}
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loading || googleLoading}
+          >
             {loading ? "Logging in..." : "Login"}
           </Button>
         </form>
