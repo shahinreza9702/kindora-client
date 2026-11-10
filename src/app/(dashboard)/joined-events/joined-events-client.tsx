@@ -37,7 +37,7 @@ interface JoinedEventsResponse {
   data: JoinedEvent[];
 }
 
-export default function JoinedEventsPage() {
+export default function JoinedEventsClient() {
   const [joinedEvents, setJoinedEvents] = useState<JoinedEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
