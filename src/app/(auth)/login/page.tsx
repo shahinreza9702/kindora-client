@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, GitBranch } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+
+type SocialProvider = "google" | "github";
 
 export default function LoginPage() {
   const { data: session, isPending } = authClient.useSession();
@@ -16,7 +18,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
+  const [socialLoading, setSocialLoading] =
+    useState<SocialProvider | null>(null);
 
   useEffect(() => {
     if (!isPending && session) {
@@ -27,7 +30,7 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (loading || googleLoading) return;
+    if (loading || socialLoading) return;
 
     const normalizedEmail = email.trim().toLowerCase();
 
@@ -60,25 +63,29 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    if (loading || googleLoading) return;
+  const handleSocialLogin = async (provider: SocialProvider) => {
+    if (loading || socialLoading) return;
 
-    setGoogleLoading(true);
+    setSocialLoading(provider);
 
     try {
       const { error } = await authClient.signIn.social({
-        provider: "google",
+        provider,
         callbackURL: "http://localhost:3001/",
         errorCallbackURL: "http://localhost:3001/login",
       });
 
       if (error) {
-        toast.error(error.message || "Google login failed.");
-        setGoogleLoading(false);
+        toast.error(
+          error.message || `${provider} login failed.`
+        );
+        setSocialLoading(null);
       }
     } catch {
-      toast.error("Unable to connect with Google. Please try again.");
-      setGoogleLoading(false);
+      toast.error(
+        `Unable to connect with ${provider}. Please try again.`
+      );
+      setSocialLoading(null);
     }
   };
 
@@ -105,23 +112,49 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Google Login */}
-        <Button
-          type="button"
-          variant="outline"
-          className="mb-6 w-full"
-          disabled={loading || googleLoading}
-          onClick={handleGoogleLogin}
-        >
-          {googleLoading ? (
-            <Loader2 className="mr-2 size-4 animate-spin" />
-          ) : (
-            <span className="mr-2 font-bold text-base">G</span>
-          )}
-          {googleLoading ? "Connecting to Google..." : "Continue with Google"}
-        </Button>
+        {/* Social Login */}
+        <div className="space-y-3">
+          {/* Google */}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={loading || socialLoading !== null}
+            onClick={() => handleSocialLogin("google")}
+          >
+            {socialLoading === "google" ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : (
+              <span className="mr-2 font-bold text-base">G</span>
+            )}
 
-        <div className="relative mb-6">
+            {socialLoading === "google"
+              ? "Connecting to Google..."
+              : "Continue with Google"}
+          </Button>
+
+          {/* GitHub */}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={loading || socialLoading !== null}
+            onClick={() => handleSocialLogin("github")}
+          >
+            {socialLoading === "github" ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : (
+              <GitBranch className="mr-2 size-5" />
+            )}
+
+            {socialLoading === "github"
+              ? "Connecting to GitHub..."
+              : "Continue with GitHub"}
+          </Button>
+        </div>
+
+        {/* Divider */}
+        <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
           </div>
@@ -133,8 +166,8 @@ export default function LoginPage() {
           </div>
         </div>
 
+        {/* Email Login */}
         <form onSubmit={handleLogin} className="space-y-5">
-          {/* Email */}
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
               Email Address
@@ -148,12 +181,11 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              disabled={loading || googleLoading}
+              disabled={loading || socialLoading !== null}
               className="h-11 w-full rounded-lg border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-primary disabled:opacity-60"
             />
           </div>
 
-          {/* Password */}
           <div className="space-y-2">
             <label htmlFor="password" className="text-sm font-medium">
               Password
@@ -168,7 +200,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                disabled={loading || googleLoading}
+                disabled={loading || socialLoading !== null}
                 className="h-11 w-full rounded-lg border bg-background px-3 pr-11 text-sm outline-none transition focus:ring-2 focus:ring-primary disabled:opacity-60"
               />
 
@@ -188,11 +220,10 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Submit */}
           <Button
             type="submit"
             className="w-full"
-            disabled={loading || googleLoading}
+            disabled={loading || socialLoading !== null}
           >
             {loading ? "Logging in..." : "Login"}
           </Button>

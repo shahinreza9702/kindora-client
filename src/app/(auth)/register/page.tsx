@@ -4,11 +4,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2, GitBranch } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+
+type SocialProvider = "google" | "github";
 
 export default function RegisterPage() {
   const { data: session, isPending } = authClient.useSession();
@@ -28,12 +30,18 @@ export default function RegisterPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] =
+    useState<SocialProvider | null>(null);
+
+  const isSubmitting = loading || socialLoading !== null;
+
+  // Email and Password Registration
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (loading) return;
+    if (isSubmitting) return;
 
     const normalizedName = name.trim();
     const normalizedEmail = email.trim().toLowerCase();
@@ -95,6 +103,33 @@ export default function RegisterPage() {
     }
   };
 
+  // Google and GitHub Registration
+  const handleSocialRegister = async (provider: SocialProvider) => {
+    if (isSubmitting) return;
+
+    setSocialLoading(provider);
+
+    try {
+      const { error } = await authClient.signIn.social({
+        provider,
+        callbackURL: "http://localhost:3001/",
+        errorCallbackURL: "http://localhost:3001/register",
+      });
+
+      if (error) {
+        toast.error(
+          error.message || `${provider} registration failed.`
+        );
+        setSocialLoading(null);
+      }
+    } catch {
+      toast.error(
+        `Unable to connect with ${provider}. Please try again.`
+      );
+      setSocialLoading(null);
+    }
+  };
+
   if (isPending || session) {
     return (
       <main className="flex min-h-screen items-center justify-center">
@@ -108,6 +143,7 @@ export default function RegisterPage() {
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-12">
       <div className="w-full max-w-md rounded-2xl border bg-card p-8 shadow-sm">
+
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight">
@@ -119,7 +155,57 @@ export default function RegisterPage() {
           </p>
         </div>
 
+        {/* Social Registration */}
+        <div className="space-y-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={isSubmitting}
+            onClick={() => handleSocialRegister("google")}
+          >
+            {socialLoading === "google" ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : (
+              <span className="mr-2 font-bold text-base">G</span>
+            )}
+
+            Continue with Google
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={isSubmitting}
+            onClick={() => handleSocialRegister("github")}
+          >
+            {socialLoading === "github" ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : (
+              <GitBranch className="mr-2 size-5" />
+            )}
+
+            Continue with GitHub
+          </Button>
+        </div>
+
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-card px-3 text-muted-foreground">
+              Or register with email
+            </span>
+          </div>
+        </div>
+
+        {/* Email Registration */}
         <form onSubmit={handleRegister} className="space-y-5">
+
           {/* Full Name */}
           <div className="space-y-2">
             <label htmlFor="name" className="text-sm font-medium">
@@ -134,7 +220,7 @@ export default function RegisterPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter your full name"
-              disabled={loading}
+              disabled={isSubmitting}
               className="h-11 w-full rounded-lg border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-primary disabled:opacity-60"
             />
           </div>
@@ -153,7 +239,7 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              disabled={loading}
+              disabled={isSubmitting}
               className="h-11 w-full rounded-lg border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-primary disabled:opacity-60"
             />
           </div>
@@ -171,7 +257,7 @@ export default function RegisterPage() {
               value={image}
               onChange={(e) => setImage(e.target.value)}
               placeholder="https://example.com/photo.jpg"
-              disabled={loading}
+              disabled={isSubmitting}
               className="h-11 w-full rounded-lg border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-primary disabled:opacity-60"
             />
           </div>
@@ -191,7 +277,7 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Create a password"
-                disabled={loading}
+                disabled={isSubmitting}
                 className="h-11 w-full rounded-lg border bg-background px-3 pr-11 text-sm outline-none transition focus:ring-2 focus:ring-primary disabled:opacity-60"
               />
 
@@ -230,7 +316,7 @@ export default function RegisterPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm your password"
-                disabled={loading}
+                disabled={isSubmitting}
                 className="h-11 w-full rounded-lg border bg-background px-3 pr-11 text-sm outline-none transition focus:ring-2 focus:ring-primary disabled:opacity-60"
               />
 
@@ -257,8 +343,19 @@ export default function RegisterPage() {
           </div>
 
           {/* Submit Button */}
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Creating Account..." : "Create Account"}
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isSubmitting}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Creating Account...
+              </>
+            ) : (
+              "Create Account"
+            )}
           </Button>
         </form>
 
