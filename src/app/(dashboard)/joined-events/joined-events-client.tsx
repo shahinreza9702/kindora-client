@@ -7,7 +7,6 @@ import {
   MapPin,
   HeartHandshake,
   ArrowUpRight,
-  LoaderCircle,
   Clock,
 } from "lucide-react";
 
@@ -176,7 +175,7 @@ export default function JoinedEventsClient() {
               </h2>
 
               <p className="mt-3 max-w-md leading-7 text-muted-foreground">
-                You haven't joined any community events yet.
+                You haven&apos;t joined any community events yet.
                 Explore upcoming events and find an opportunity
                 to make a positive impact.
               </p>
@@ -232,7 +231,7 @@ export default function JoinedEventsClient() {
                           }}
                         />
 
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />
 
                         <span className="absolute bottom-4 left-4 rounded-full bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white">
                           {event.category}

@@ -247,9 +247,6 @@ export default function CreateEventForm() {
                 type="datetime-local"
                 value={formData.eventDate}
                 onChange={handleChange}
-                min={new Date(Date.now() + 60000)
-                  .toISOString()
-                  .slice(0, 16)}
                 required
                 className="w-full rounded-lg border bg-background py-3 pl-10 pr-4 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
               />

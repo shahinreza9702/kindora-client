@@ -2,13 +2,13 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Menu,
   X,
   HeartHandshake,
-  UserRound,
   CalendarPlus,
   ClipboardList,
   CalendarCheck,
@@ -124,7 +124,7 @@ export function Navbar() {
                 aria-label="Open profile menu"
               >
                 {user.image ? (
-                  <img
+                  <Image
                     src={user.image}
                     alt={user.name}
                     className="h-9 w-9 rounded-full object-cover"
@@ -238,7 +238,7 @@ export function Navbar() {
                 <>
                   <div className="flex items-center gap-3 rounded-lg bg-muted p-3">
                     {user.image ? (
-                      <img
+                      <Image
                         src={user.image}
                         alt={user.name}
                         className="h-10 w-10 rounded-full object-cover"
