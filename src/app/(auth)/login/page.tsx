@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,16 +14,26 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (loading) return;
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail || !password) {
+      toast.error("Please enter your email and password.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const { error } = await authClient.signIn.email({
-        email,
+        email: normalizedEmail,
         password,
       });
 
@@ -32,7 +43,8 @@ export default function LoginPage() {
       }
 
       toast.success("Login successful!");
-      router.push("/");
+
+      router.replace("/");
       router.refresh();
     } catch {
       toast.error("Something went wrong. Please try again.");
@@ -48,16 +60,19 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold tracking-tight">
             Welcome Back
           </h1>
+
           <p className="mt-2 text-sm text-muted-foreground">
             Login to continue making a difference with Kindora.
           </p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
+          {/* Email */}
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
               Email Address
             </label>
+
             <input
               id="email"
               type="email"
@@ -66,26 +81,47 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="h-11 w-full rounded-lg border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary"
+              disabled={loading}
+              className="h-11 w-full rounded-lg border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-primary disabled:opacity-60"
             />
           </div>
 
+          {/* Password */}
           <div className="space-y-2">
             <label htmlFor="password" className="text-sm font-medium">
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              required
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              className="h-11 w-full rounded-lg border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary"
-            />
+
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                disabled={loading}
+                className="h-11 w-full rounded-lg border bg-background px-3 pr-11 text-sm outline-none transition focus:ring-2 focus:ring-primary disabled:opacity-60"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition hover:text-foreground"
+              >
+                {showPassword ? (
+                  <EyeOff className="size-5" />
+                ) : (
+                  <Eye className="size-5" />
+                )}
+              </button>
+            </div>
           </div>
 
+          {/* Submit */}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Logging in..." : "Login"}
           </Button>
