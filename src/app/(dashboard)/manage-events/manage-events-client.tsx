@@ -293,7 +293,7 @@ export default function ManageEventsClient() {
 
         {/* Error State */}
         {!isLoading && errorMessage && (
-          <div className="flex min-h-[350px] flex-col items-center justify-center rounded-2xl border border-border bg-card px-6 text-center">
+          <div className="flex min-h-87.5 flex-col items-center justify-center rounded-2xl border border-border bg-card px-6 text-center">
             <HeartHandshake className="h-12 w-12 text-muted-foreground" />
 
             <h2 className="mt-5 text-xl font-bold">
@@ -316,7 +316,7 @@ export default function ManageEventsClient() {
 
         {/* Empty State */}
         {!isLoading && !errorMessage && events.length === 0 && (
-          <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card px-6 text-center">
+          <div className="flex min-h-100 flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card px-6 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-600/10 text-emerald-600">
               <HeartHandshake className="h-8 w-8" />
             </div>
@@ -369,7 +369,7 @@ export default function ManageEventsClient() {
                       }}
                     />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />
 
                     <span className="absolute bottom-4 left-4 rounded-full bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white">
                       {event.category}

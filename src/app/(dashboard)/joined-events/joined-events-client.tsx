@@ -141,7 +141,7 @@ export default function JoinedEventsClient() {
 
         {/* Error State */}
         {!isLoading && errorMessage && (
-          <div className="flex min-h-[350px] flex-col items-center justify-center rounded-2xl border border-border bg-card px-6 text-center">
+          <div className="flex min-h-87.5 flex-col items-center justify-center rounded-2xl border border-border bg-card px-6 text-center">
             <HeartHandshake className="h-12 w-12 text-muted-foreground" />
 
             <h2 className="mt-5 text-xl font-bold">
@@ -166,7 +166,7 @@ export default function JoinedEventsClient() {
         {!isLoading &&
           !errorMessage &&
           joinedEvents.length === 0 && (
-            <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card px-6 text-center">
+            <div className="flex min-h-100 flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card px-6 text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-600/10 text-emerald-600">
                 <HeartHandshake className="h-8 w-8" />
               </div>
