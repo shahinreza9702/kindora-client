@@ -13,6 +13,7 @@ import {
   ClipboardList,
   CalendarCheck,
   LogOut,
+  UserRound,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,11 @@ const navLinks = [
 ];
 
 const dashboardLinks = [
+  {
+    name: "My Profile",
+    href: "/profile",
+    icon: UserRound,
+  },
   {
     name: "Create Event",
     href: "/create-event",
