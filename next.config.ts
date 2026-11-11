@@ -1,6 +1,9 @@
 
 import type { NextConfig } from "next";
 
+const backendUrl =
+  process.env.BACKEND_URL || "http://localhost:5000";
+
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
@@ -20,6 +23,15 @@ const nextConfig: NextConfig = {
         hostname: "lh3.googleusercontent.com",
       },
     ],
+  },
+
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${backendUrl}/api/:path*`,
+      },
+    ];
   },
 };
 

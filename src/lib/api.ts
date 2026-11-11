@@ -1,9 +1,6 @@
 
 import { authClient } from "@/lib/auth-client";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
 interface ApiRequestOptions extends RequestInit {
   authenticated?: boolean;
 }
@@ -34,7 +31,7 @@ export async function apiRequest<T>(
     headers.set("Authorization", `Bearer ${data.token}`);
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(path, {
     ...requestOptions,
     headers,
     credentials: "include",
