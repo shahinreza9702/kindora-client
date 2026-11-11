@@ -129,12 +129,14 @@ export function Navbar() {
                 className="flex items-center gap-2 rounded-full border p-1 pr-3 transition-colors hover:bg-muted"
                 aria-label="Open profile menu"
               >
+                
                 {user.image ? (
                   <Image
                     src={user.image}
                     alt={user.name || "User"}
                     width={36}
                     height={36}
+                    unoptimized
                     className="h-9 w-9 rounded-full object-cover"
                   />
                 ) : (
@@ -249,6 +251,9 @@ export function Navbar() {
                       <Image
                         src={user.image}
                         alt={user.name}
+                        width={40}
+                        height={40}
+                        unoptimized
                         className="h-10 w-10 rounded-full object-cover"
                       />
                     ) : (
