@@ -112,8 +112,8 @@ export default function RegisterPage() {
     try {
       const { error } = await authClient.signIn.social({
         provider,
-        callbackURL: "http://localhost:3001/",
-        errorCallbackURL: "http://localhost:3001/register",
+        callbackURL: "/",
+        errorCallbackURL: "/register",
       });
 
       if (error) {
