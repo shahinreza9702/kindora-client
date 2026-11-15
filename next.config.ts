@@ -1,8 +1,8 @@
-
 import type { NextConfig } from "next";
 
-const backendUrl =
-  process.env.BACKEND_URL || "http://localhost:5000";
+const backendUrl = (
+  process.env.BACKEND_URL || "http://localhost:5000"
+).replace(/\/+$/, "");
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
